@@ -16,6 +16,8 @@ Overview
 2D点群の対応から幾何変換（3パラメータ)を算出する
 - 3d-3dCorrespondence_bunny.ipynb
 3Dのバニー点群の対応点が既知な場合の幾何変換（6パラメータ)を算出する
+- ICP_3d_bunny.ipynb
+2つの異なる3Dのバニーの点群データに対して幾何変換（6パラメータ)を算出する
 
 ## Contribution
 
