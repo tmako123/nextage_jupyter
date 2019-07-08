@@ -1,0 +1,108 @@
+<html>
+<meta charset="utf-8">
+<body>
+{% load static %}
+<script src="{% static 'build/three.min.js' %}"></script>
+<script src="{% static 'js/threejs/controls/TrackballControls.js' %}"></script>
+<script src="{% static 'js/threejs/loaders/PLYLoader.js' %}"></script>
+<script>
+ 
+init();
+animate();
+  
+function init() {
+    //シーン
+    scene = new THREE.Scene();
+    
+    //カメラ
+    camera = new THREE.PerspectiveCamera( 75, 640/480, 1, 10000 );
+    camera.position.z = 10;
+    camera.position.y = 20;
+
+    //カメラGUI
+    trackball = new THREE.TrackballControls( camera );
+    trackball.rotateSpeed = 2.0; //回転速度
+    trackball.zoomSpeed = 0.2;//ズーム速度
+    trackball.panSpeed = 1.0;//パン速度
+     
+    //ライティング
+    addDirectLight(1000, 0,0, 0xffff00, 2);
+    addDirectLight(0,1000, 0, 0xff00ff, 2);
+    addDirectLight(0,0,1000, 0x00ffff, 2);
+    addDirectLight(-1000, 0,0, 0xffffff, 2);
+    addDirectLight(0,-1000, 0, 0xffffff, 2);
+    addDirectLight(0,0,-1000, 0xffffff, 2);
+    
+    //plyローダー
+	var loader = new THREE.PLYLoader();
+	var group = new THREE.Group();
+
+	var pointsMaterial = new THREE.PointsMaterial({
+	    //color: 0x0000ff,
+	    vertexColors:true,
+	    size: 0.01,
+	    opacity:0.5,
+	    transparent:true
+	});
+	
+	loader.load("{% static './model/points.ply' %}", function (geometry) {
+	    group = new THREE.Points(geometry, pointsMaterial);
+	    group.scale.set(1, 1, 1); 
+	    group.sortParticles = true;
+	    scene.add(group);
+	});
+	
+	loader.load("{% static './model/camera.ply' %}", function ( geometry ) {
+		geometry.computeVertexNormals();
+		var material = new THREE.MeshBasicMaterial( { vertexColors:true, wireframe: true} );
+		var mesh = new THREE.Mesh( geometry, material );
+		mesh.scale.multiplyScalar( 1 );
+		mesh.castShadow = true;
+		mesh.receiveShadow = true;
+		scene.add( mesh );
+	} );
+
+     
+    //グリッド
+    grid = new THREE.GridHelper(100, 20, 0x888888, 0x888888);
+    grid.position.y = 0;
+    scene.add(grid);
+     
+    //レンダラー
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize( 640, 480 );
+    renderer.setClearColor(new THREE.Color('white'));//背景色の設定
+    document.body.appendChild( renderer.domElement );
+  
+}
+
+function addDirectLight( x, y, z, color, intensity ) {
+    var directionalLight = new THREE.DirectionalLight( color, intensity ); //平行光源（色、強度）
+    directionalLight.position.set(x,y,z);
+    scene.add( directionalLight );
+}
+  
+function animate() {
+    requestAnimationFrame( animate );
+    onResize();
+    renderer.render( scene, camera );
+    trackball.update();   //これ追加
+}
+
+function onResize() {
+  // サイズを取得
+  const width = window.innerWidth - 16;
+  const height = window.innerHeight - 16;
+
+  // レンダラーのサイズを調整する
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(width, height);
+
+  // カメラのアスペクト比を正す
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+}
+
+</script>
+</body>
+</html>
