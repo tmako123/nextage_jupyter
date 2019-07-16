@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>ajax</title>
+        
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    </head>
+    
+    <body>
+        <div>
+            <button id="more1">more1</button>
+            <br>
+            <button id="more2">more2</button>
+            <br>
+            <button id="more3">more3</button>
+            <br>
+            <button id="popup1">popup1</button>
+            <br>
+            <button id="popup2">popup2</button>
+        </div>
+        <br>
+        <div>
+           <div id="result"></div>
+        </div>
+        
+        <script>
+            $("#more1").click(function(){
+                $("#result").load("more", function(){
+                    $("#message").css("color", "red");
+                });
+            });
+            $("#more2").click(function(){
+                $("#result").load("more", function(){
+                    $("#message").css("color", "blue");
+                });
+            });
+            $("#more3").click(function(){
+                $("#result").load("more", function(){
+                    $("#message").css("color", "green");
+                });
+            });
+            $("#popup1").on('click', function(){
+			    alert("popup1！");
+            });
+            $("#popup2").on('click', function(){
+			    alert("popup2！");
+            });
+        </script>
+    </body>
+</html>
