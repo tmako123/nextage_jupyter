@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>ajax</title>
+        
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    </head>
+    
+    <body>
+        <div>
+            <button id="button1">receive json</button>
+            <br>
+            <button id="button2">post json</button>
+            <br>
+            <button id="button3">clear output</button>
+        </div>
+        <br>
+        <div>
+           <div id="result"></div>
+           <div id="received_data"></div>
+        </div>
+        <script>
+        
+            $("#button1").click(function(){
+			  $('#result').text('受信中...');
+			  // Ajax通信を開始
+			  $.ajax({
+			    url: 'json_get',
+			    type: 'GET',
+			    dataType: 'json',
+			    // フォーム要素の内容をハッシュ形式に変換
+			    data: $('form').serializeArray(),
+			    timeout: 5000,
+			  })
+			  .done(function(data) {
+     			  $('#result').text('受信しました...');
+			      // 通信成功時の処理を記述
+    			  $('#received_data').text('received data = ' + data.date);
+			  })
+			  .fail(function() {
+			      // 通信失敗時の処理を記述
+     			  $('#result').text('受信できませんでした...');
+			  });
+            });
+            
+            $("#button2").click(function(){
+				 var JSONdata = {
+                    'value1': 135,
+                    'value2': 246      
+                };
+                $('#result').text('送信中...');
+                var token = '{{csrf_token}}';
+			    $.ajax({
+			        url: 'json_post',
+			        type:'POST',
+			        dataType: 'json',
+			        data : JSONdata,
+			        timeout:3000,
+					headers: { "X-CSRFToken": token },
+					success:function(res) {
+	     			    $('#result').text('送信しました...');
+                        $('#received_data').text('received data = ' + res.res);
+			        },
+			        error:function(XMLHttpRequest, textStatus, errorThrown){
+	     		        $('#result').text('送信できませんでした...');
+			        },
+			        
+			    //}).done(function(data) {
+	     		//    $('#result').text('送信しました...');
+			    //}).fail(function(XMLHttpRequest, textStatus, errorThrown) {
+	     		//    $('#result').text('送信できませんでした...');
+			    });
+            });
+            
+            $("#button3").click(function(){
+                //$("#result").load("more", function(){
+                //    $("#message").css("color", "green");
+                //});
+                clear_text();
+            });
+            
+function clear_text(){
+	$('#result').text('')
+	$('#received_data').text('')
+}
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+            
+        </script>
+    </body>
+</html>

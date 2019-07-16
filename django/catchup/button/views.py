@@ -4,8 +4,11 @@ from django.shortcuts import render_to_response
 from django.shortcuts import render
 
 from django.http import HttpResponse
+from django.http.response import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 import json
+import datetime
 
 def index(request):
     return render(request, 'button.html')
@@ -20,7 +23,15 @@ def more(request):
 def ajax(request):
     return render(request, 'ajax_sample.html')
 
-def ajax_get_json(request): 
-    data = {'id': 1, 'name': 'hoge'}
-    json_str = json.dumps(data, ensure_ascii=False, indent=2)
-    return HttpResponse(json_str, content_type="application/json")
+def json_receive(request):
+    print("received")
+    jsondata = request.POST['value1']
+    datas = json.loads(jsondata)
+    print(jsondata)
+    return JsonResponse({"res":"ok"})
+        
+count = 0
+def json_send(request):
+    dt_now = datetime.datetime.now()
+    json_data = {"date":dt_now}
+    return JsonResponse(json_data)
