@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <head>
+        <meta charset="utf-8">
+        <title>ajax</title>
+    </head>
+    
+    <body>
+      <div>
+          <div id="result"></div>
+      </div>
+      
+        
+      <br>
+       {% load static %}
+        <img id="image_place"src="{% static "0.jpg" %}"/>
+        <script type="text/javascript">
+        // img要素を取得する
+        var img = document.getElementById("image_place");
+        // 表示する画像番号
+         
+        temp = 0
+        function changeImage() {
+            // 画像を切り替える関数
+			$.ajax({
+				url: 'next_img',
+				dataType: 'json',
+				data: {name: 'chara'},
+				success: function(data){
+      			    var temp = data.res;
+                    img.src="{% static "" %}" + temp + ".jpg";
+				}
+			});
+        }
+        setInterval(changeImage, 1000);
+  </script>
+</body>
+</html>

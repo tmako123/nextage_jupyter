@@ -20,4 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('webgl/', include('webgl.urls')),
     path('button/', include('button.urls')),
+    path('image_reloader/', include('image_reloader.urls')),
+
 ]

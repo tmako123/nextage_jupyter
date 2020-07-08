@@ -5,11 +5,13 @@
 <script src="{% static 'build/three.min.js' %}"></script>
 <script src="{% static 'js/threejs/controls/TrackballControls.js' %}"></script>
 <script src="{% static 'js/threejs/loaders/PLYLoader.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
 <script>
  
 init();
 animate();
-  
+
 function init() {
     //シーン
     scene = new THREE.Scene();
@@ -37,6 +39,17 @@ function init() {
 	var loader = new THREE.PLYLoader();
 	var group = new THREE.Group();
 
+    //frame
+    frame_count = 0
+
+    pose_x = 0
+    pose_y = 0
+    poze_z = 0
+    pose_ax = 1
+    pose_ay = 0
+    poze_az = 0
+    pose_angle = 0
+
 	var pointsMaterial = new THREE.PointsMaterial({
 	    //color: 0x0000ff,
 	    vertexColors:true,
@@ -62,10 +75,27 @@ function init() {
 		scene.add( mesh );
 	} );
 
+	loader.load("{% static './model/cur_camera.ply' %}", function ( geometry ) {
+		geometry.computeVertexNormals();
+		var material = new THREE.MeshBasicMaterial( { vertexColors:true, wireframe: true} );
+		cur_cam = new THREE.Mesh( geometry, material );
+		cur_cam.scale.multiplyScalar( 1 );
+		cur_cam.castShadow = true;
+		cur_cam.receiveShadow = true;
+		cur_cam.useQuaternion = true;
+		scene.add( cur_cam );
+	} );
      
     //グリッド
     grid = new THREE.GridHelper(100, 20, 0x888888, 0x888888);
     grid.position.y = 0;
+    
+    var q = new THREE.Quaternion();
+    var axis = new THREE.Vector3(1, 0, 0).normalize();
+    q.setFromAxisAngle(axis, 3.1415/2);
+    grid.quaternion.copy(q)
+
+    
     scene.add(grid);
      
     //レンダラー
@@ -85,6 +115,19 @@ function addDirectLight( x, y, z, color, intensity ) {
 function animate() {
     requestAnimationFrame( animate );
     onResize();
+    
+    //if(frame_count % 1 == 0){
+        requestPose()
+        cur_cam.position.x = pose_x
+        cur_cam.position.y = pose_y
+        cur_cam.position.z = pose_z
+        var q = new THREE.Quaternion();
+        var axis = new THREE.Vector3(pose_ax, pose_ay, pose_az).normalize();
+        q.setFromAxisAngle(axis, pose_angle);
+        cur_cam.quaternion.copy(q)
+    //}
+    frame_count += 1
+
     renderer.render( scene, camera );
     trackball.update();   //これ追加
 }
@@ -101,6 +144,31 @@ function onResize() {
   // カメラのアスペクト比を正す
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
+}
+
+function requestPose(){
+  $.ajax({
+    url: 'postPose',
+    type: 'GET',
+    dataType: 'json',
+    // フォーム要素の内容をハッシュ形式に変換
+    data: $('form').serializeArray(),
+    timeout: 5000,
+  })
+  .done(function(data) {
+      // 通信成功時の処理を記述
+      pose_x = data.x
+      pose_y = data.y
+      pose_z = data.z
+      pose_ax = data.ax
+      pose_ay = data.ay
+      pose_az = data.az
+      pose_angle = data.angle
+  })
+  .fail(function() {
+      // 通信失敗時の処理を記述
+	  //$('#result').text('受信できませんでした
+  });
 }
 
 </script>

@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.http.response import JsonResponse
 
 import zmq
@@ -7,7 +7,6 @@ socket = context.socket(zmq.REQ)
 socket.bind("tcp://*:5555")
 
 # Create your views here.
-from django.shortcuts import render
 
 from django.http import HttpResponse
 
